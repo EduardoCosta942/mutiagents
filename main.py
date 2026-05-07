@@ -66,7 +66,7 @@ orquestrador_app = create_agent(
     system_prompt=ORQUESTRADOR_PROMPT_COMPLETO,
 )
  
-def executar_fluxo(input, sid):
+def executar_fluxo(input):
     resp_router = router_app.invoke(
         { "messages": [{ "role": "human", "content": input}]},
         config={ "configurable": { "thread_id": "meu_id_de_sessao" } }
@@ -111,7 +111,7 @@ while True:
         print("Encerrando...")
         break
     try:
-        resposta = executar_fluxo(input=user_input, sid="id_do_usuario")
+        resposta = executar_fluxo(input=user_input)
         print(resposta);
     except Exception as e:
         print("Erro ao consumir a API: ", e)

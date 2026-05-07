@@ -8,9 +8,23 @@ from langchain_google_genai import GoogleGenerativeAIEmbeddings
 
 load_dotenv()
 
+# Initialize resources once at module load
 PDF_PATH = os.getenv("FAQ_PDF_PATH", "faq.pdf")
 loader = PyPDFLoader(PDF_PATH)
 docs = loader.load()
+
+# Split documents once
+text_splitter = RecursiveCharacterTextSplitter(chunk_size=760, chunk_overlap=150)
+chunks = text_splitter.split_documents(docs)
+
+# Initialize embeddings once
+embeddings = GoogleGenerativeAIEmbeddings(
+    model="gemini-embedding-2-preview",
+    google_api_key=os.getenv("GEMINI_API_KEY")
+)
+
+# Create vector store once
+db = FAISS.from_documents(chunks, embeddings)
 
 @tool("faq_retriever")
 def faq_retriever(question: str) -> str:
@@ -21,18 +35,6 @@ def faq_retriever(question: str) -> str:
     Returns:
         str: The relevant information from the FAQ document.
     """
-    global docs
-    # Split the document into smaller chunks
-    chunks = RecursiveCharacterTextSplitter(chunk_size=760, chunk_overlap=150
-                        ).split_documents(docs)
-    
-    # Converting chuck to vectorstore
-    embeddings = GoogleGenerativeAIEmbeddings(
-        model = "gemini-embedding-2-preview",
-        google_api_key=os.getenv("GEMINI_API_KEY")
-    )
-
-    # Create a FAISS vector store from the document chunks
-    db = FAISS.from_documents(chunks, embeddings)
-
-    return db.similarity_search(question, k=6)
+    print("Retrieving information from the FAQ document...")
+    consult = db.similarity_search(question, k=6)
+    return "\n".join([doc.page_content for doc in consult])

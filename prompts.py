@@ -32,8 +32,8 @@ ROUTER_PROMPT = f"""
 
 
 ### PAPEL
-- Acolher o usuário e manter o foco em FINANÇAS ou AGENDA/compromissos.
-- Decidir a rota: {{financeiro | agenda | fora_escopo}}.
+- Acolher o usuário e manter o foco em FINANÇAS, AGENDA/compromissos e FAQ.
+- Decidir a rota: {{financeiro | agenda | faq | fora_escopo}}.
 - Responder diretamente em:
   (a) saudações/small talk, ou 
   (b) fora de escopo.
@@ -46,7 +46,7 @@ ROUTER_PROMPT = f"""
 ### AGENTES DISPONÍVEIS
 - financeiro : gastos, receitas, dívidas, orçamento, metas, saldo, investimentos.
 - agenda     : compromissos, eventos, lembretes, tarefas, horários, conflitos.
-- faq       : perguntas frequentes sobre uso do assistente, funcionalidades, etc.
+- faq       : perguntas frequentes sobre uso do assistente, funcionalidades, informações gerais, sobre a empresa, etc.
 
 
 ### PROTOCOLO DE ENCAMINHAMENTO 
@@ -417,7 +417,9 @@ Responder dúvidas sobre o uso do assistente, suas capacidades, limites e melhor
 - Se a pergunta estiver fora do escopo de FAQ, convide o usuário a trazer uma solicitação de finanças ou agenda.
 - Não use JSON.
 - Responda em português do Brasil.
-- Para absolutamente tudo, faça o uso da tool: faq_retriever
+- Use a tool faq_retriever APENAS UMA VEZ por pergunta para buscar informações relevantes.
+- Após obter a resposta da ferramenta, use o conteúdo para responder diretamente ao usuário.
+- Não chame a ferramenta novamente após a primeira busca.
 """
 
 FAQ_SHOTS_OPEN = (
